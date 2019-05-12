@@ -1,0 +1,24 @@
+sudo: required
+services:
+  - docker
+before_install:
+  - docker build -t arvindtheace/multi-docker -f ./client/Dockerfile.dev ./client
+
+scripts:
+  - docker run arvindtheace/multi-docker npm test
+
+after_success:
+  - docker build -t arvindtheace/multi-client ./client
+  - docker build -t arvindtheace/multi-nginx ./nginx
+  - docker build -t arvindtheace/multi-server ./server
+  - docker build -t arvindtheace/multi-worker ./worker
+
+  # Log into Docker CLI
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  # take images and push to docker hub
+
+  - docker push arvindtheace/multi-client
+  - docker push arvindtheace/multi-nginx
+  - docker push arvindtheace/multi-server
+  - docker push arvindtheace/multi-worker
+
